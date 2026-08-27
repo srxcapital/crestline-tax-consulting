@@ -82,7 +82,7 @@
       align-items: center;
       gap: clamp(8px, 1.2vw, 14px);
       min-height: calc(var(--logo-height) + 16px);
-      padding: 12px 0 8px;
+      padding: 20px 0 8px;
     }
 
     .brand {
