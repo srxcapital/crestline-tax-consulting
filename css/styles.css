@@ -438,26 +438,12 @@
     }
 
     .services .section-heading h2 .accent {
-      position: relative;
       display: inline-block;
       font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
       font-style: normal;
       font-weight: 700;
-      padding: 0 0.04em 10px;
       line-height: 1;
       vertical-align: baseline;
-    }
-
-    .services .section-heading h2 .accent::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: 0;
-      transform: translateX(-50%);
-      width: 1.05em;
-      height: 2.5px;
-      background: #2f6b4f;
-      border-radius: 1px;
     }
 
     .section-heading::after {
@@ -1178,6 +1164,10 @@
 
       .services {
         padding: 24px 0 16px;
+      }
+
+      .services .section-heading h2 {
+        font-size: clamp(26px, 5.5vw, 30px);
       }
 
       .service-grid {
