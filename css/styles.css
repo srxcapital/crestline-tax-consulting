@@ -1732,6 +1732,10 @@
     @media (max-width: 768px) {
       body:has(.save-contact) {
         overflow-x: hidden;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
       }
 
       body:has(.save-contact) .topbar {
@@ -1739,14 +1743,22 @@
       }
 
       .save-contact {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
         background: #f7fafc;
+        min-height: 100vh;
+        min-height: 100dvh;
       }
 
       .sc-stage {
+        flex: 1;
         display: flex;
         flex-direction: column;
         background: #f7fafc;
         overflow: hidden;
+        min-height: 100vh;
+        min-height: 100dvh;
       }
 
       .sc-stage::before {
@@ -1992,8 +2004,12 @@
 
       .sc-tagline {
         order: 3;
-        background: transparent;
-        padding: 18px 12px 22px;
+        flex: 1 0 auto;
+        align-items: center;
+        justify-content: center;
+        background: #f7fafc;
+        margin-top: 0;
+        padding: 28px 12px 32px;
         letter-spacing: 0.22em;
         font-size: 13px;
       }
