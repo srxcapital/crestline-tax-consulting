@@ -34,7 +34,10 @@ if (saveContact) {
   const contactUrl = new URL(saveContact.getAttribute("href"), window.location.href).href;
   const ua = navigator.userAgent || "";
   const isAndroid = /Android/i.test(ua);
-  const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isIPad = navigator.platform === "MacIntel"
+    && navigator.maxTouchPoints > 1
+    && window.matchMedia("(pointer: coarse)").matches;
+  const isIOS = /iPhone|iPad|iPod/i.test(ua) || isIPad;
   const isWindows = /Windows/i.test(ua);
   const vcard = [
     "BEGIN:VCARD",
@@ -53,39 +56,44 @@ if (saveContact) {
 
   saveContact.removeAttribute("download");
   saveContact.removeAttribute("target");
+  // Same contact card the QR code contains. Keep this as a real link so the
+  // tap itself opens it. Chrome ignores an Android intent: URL, so that tap
+  // did nothing.
+  saveContact.href = contactUrl;
 
-  const androidContactUrl = [
-    "intent:#Intent",
-    "action=android.intent.action.INSERT",
-    "type=vnd.android.cursor.dir/contact",
-    "S.name=" + encodeURIComponent("Sumit Kukreja"),
-    "S.phone=" + encodeURIComponent("+18043014498"),
-    "S.email=" + encodeURIComponent("sumit@crestlinetax.com"),
-    "S.company=" + encodeURIComponent("Crestline Tax & Accounting"),
-    "S.job_title=" + encodeURIComponent("Tax Consultant"),
-    "S.postal=" + encodeURIComponent("5600 Roswell Rd Bldg C, Sandy Springs, GA 30342"),
-    "S.notes=" + encodeURIComponent("https://crestlinetax.com"),
-    "end",
-  ].join(";");
+  const contactFile = new File([vcard], "Sumit Kukreja.vcf", { type: "text/vcard" });
+  const isChromium = /Chrome|Chromium|Edg|OPR/i.test(ua);
+  const phoneLayout = () => window.matchMedia("(max-width: 768px)").matches;
 
-  const isMobile = isAndroid || isIOS;
-  // A real tap has to open the contact. Cancelling it in script does nothing on a phone.
-  if (isAndroid) saveContact.href = androidContactUrl;
-  else if (isIOS) saveContact.href = contactUrl;
+  saveContact.addEventListener("click", (event) => {
+    // iPhone opens this .vcf as the contact card, the same card a vCard QR shows.
+    if (isIOS) return;
 
-  saveContact.addEventListener("click", async (event) => {
-    if (isMobile) return;
+    if (isAndroid) {
+      if (navigator.canShare && navigator.canShare({ files: [contactFile] })) {
+        event.preventDefault();
+        navigator.share({ files: [contactFile], title: "Sumit Kukreja" }).catch((error) => {
+          if (error && error.name === "AbortError") return;
+          window.location.href = contactUrl;
+        });
+      }
+      return;
+    }
+
+    // Phone layout in a desktop browser: follow the contact card. A data: URL
+    // is blocked there, which made this button do nothing.
+    if (phoneLayout()) return;
+
+    if (!isChromium && !isWindows) return;
 
     event.preventDefault();
 
-    const file = new File([vcard], "Sumit Kukreja.vcf", { type: "text/vcard" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: "Sumit Kukreja" });
-        return;
-      } catch (error) {
+    if (navigator.canShare && navigator.canShare({ files: [contactFile] })) {
+      navigator.share({ files: [contactFile], title: "Sumit Kukreja" }).catch((error) => {
         if (error && error.name === "AbortError") return;
-      }
+        window.location.href = contactUrl;
+      });
+      return;
     }
 
     if (isWindows) {
@@ -98,26 +106,6 @@ if (saveContact) {
       return;
     }
 
-    if (window.showSaveFilePicker) {
-      try {
-        const handle = await window.showSaveFilePicker({
-          suggestedName: "Sumit Kukreja.vcf",
-          types: [{ description: "Contact card", accept: { "text/vcard": [".vcf"] } }],
-        });
-        const writable = await handle.createWritable();
-        await writable.write(vcard);
-        await writable.close();
-        return;
-      } catch (error) {
-        if (error && error.name === "AbortError") return;
-      }
-    }
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(new Blob([vcard], { type: "text/vcard" }));
-    link.download = "Sumit Kukreja.vcf";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    window.location.href = "data:text/x-vcard;charset=utf-8," + encodeURIComponent(vcard);
   });
 }
