@@ -1603,8 +1603,7 @@
 
     .sc-brandbar,
     .sc-details,
-    .sc-chevron,
-    .sc-services li.sc-extra {
+    .sc-chevron {
       display: none;
     }
 
