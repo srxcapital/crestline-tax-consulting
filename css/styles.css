@@ -1484,7 +1484,7 @@
     }
 
     .sc-qr img {
-      width: min(100%, 196px);
+      width: min(100%, 292px);
       height: auto;
       margin: 0 auto;
       display: block;
@@ -1509,7 +1509,6 @@
       flex-shrink: 0;
     }
 
-    .sc-save,
     .sc-book {
       display: flex;
       align-items: center;
@@ -1517,6 +1516,7 @@
       gap: 10px;
       width: 100%;
       min-height: 48px;
+      margin-top: 16px;
       border-radius: 12px;
       font-family: "Poppins", sans-serif;
       font-size: 14px;
@@ -1524,50 +1524,15 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      background: #ffffff;
+      color: #163456;
+      border: 1.5px solid #1c3d66;
     }
 
-    .sc-save svg,
     .sc-book svg {
       width: 22px;
       height: 22px;
       flex-shrink: 0;
-    }
-
-    .sc-save {
-      background: linear-gradient(180deg, #18a83c 0%, #0d8a2e 100%);
-      color: #ffffff;
-      box-shadow: 0 8px 18px rgba(13, 138, 46, 0.28);
-    }
-
-    .sc-save:hover {
-      background: linear-gradient(180deg, #149433 0%, #0b7627 100%);
-      transform: translateY(-1px);
-    }
-
-    .sc-or {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin: 16px 4px;
-      color: #9aa7b3;
-      font-family: "Poppins", sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-    }
-
-    .sc-or::before,
-    .sc-or::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: #e3eaef;
-    }
-
-    .sc-book {
-      background: #ffffff;
-      color: #163456;
-      border: 1.5px solid #1c3d66;
     }
 
     .sc-book:hover {
@@ -1861,8 +1826,8 @@
 
       .sc-card-top {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 132px;
-        gap: 8px;
+        grid-template-columns: minmax(0, 1fr) 196px;
+        gap: 10px;
         align-items: start;
         min-width: 0;
       }
@@ -1870,7 +1835,7 @@
       .sc-details {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 16px;
         list-style: none;
         margin: 4px 0 0;
         padding: 0;
@@ -1944,37 +1909,26 @@
         height: 16px;
       }
 
-      .sc-save,
       .sc-book {
         min-height: 50px;
         border-radius: 999px;
         padding: 0 14px;
-        margin-top: 14px;
+        margin-top: 40px;
         justify-content: space-between;
         font-size: 13px;
         letter-spacing: 0.04em;
       }
 
-      .sc-book {
-        margin-top: 0;
-      }
-
-      .sc-save span,
       .sc-book span {
         flex: 1;
         text-align: center;
       }
 
-      .sc-save .sc-chevron,
       .sc-book .sc-chevron {
         display: block;
         width: 18px;
         height: 18px;
         flex-shrink: 0;
-      }
-
-      .sc-or {
-        margin: 10px 8px;
       }
 
       .sc-tagline {
