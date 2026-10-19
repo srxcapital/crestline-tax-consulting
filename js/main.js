@@ -31,60 +31,36 @@ document.addEventListener("keydown", (event) => {
 
 const saveContact = document.querySelector(".sc-save");
 if (saveContact) {
-  const vcard = [
-    "BEGIN:VCARD",
-    "VERSION:3.0",
-    "N:Kukreja;Sumit;;;",
-    "FN:Sumit Kukreja",
-    "ORG:Crestline Tax & Accounting",
-    "TITLE:Tax Consultant",
-    "TEL:+18043014498",
-    "EMAIL:sumit@crestlinetax.com",
-    "URL:https://crestlinetax.com",
-    "ADR:;;5600 Roswell Rd Bldg C;Sandy Springs;GA;30342;USA",
-    "END:VCARD",
-  ].join("\r\n") + "\r\n";
-
-  const fileUrl = new URL(saveContact.getAttribute("href"), window.location.href).href;
+  const contactUrl = new URL(saveContact.getAttribute("href"), window.location.href).href;
   const ua = navigator.userAgent || "";
   const isAndroid = /Android/i.test(ua);
   const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-  if (isAndroid) {
-    const extras = [
-      ["name", "Sumit Kukreja"],
-      ["phone", "+18043014498"],
-      ["email", "sumit@crestlinetax.com"],
-      ["company", "Crestline Tax & Accounting"],
-      ["job_title", "Tax Consultant"],
-      ["postal", "5600 Roswell Rd Bldg C, Sandy Springs, GA 30342"],
-      ["notes", "https://crestlinetax.com"],
-    ].map(([key, value]) => `S.${key}=${encodeURIComponent(value)}`);
-    saveContact.href = [
-      "intent:#Intent",
-      "action=android.intent.action.INSERT",
-      "type=vnd.android.cursor.item/contact",
-      ...extras,
-      `S.browser_fallback_url=${encodeURIComponent(fileUrl)}`,
-      "end",
-    ].join(";");
-  } else if (isIOS) {
-    // A direct vCard link opens the same contact card the camera shows for the QR code.
-    saveContact.href = "data:text/vcard;charset=utf-8," + encodeURIComponent(vcard);
-  }
+  saveContact.removeAttribute("download");
+  saveContact.removeAttribute("target");
 
-  saveContact.addEventListener("click", async (event) => {
-    if (isAndroid || isIOS) return;
+  // Android opens the system Add Contact screen. A .vcf link only saves a file.
+  const androidContactUrl = isAndroid
+    ? [
+        "intent:#Intent",
+        "action=android.intent.action.INSERT",
+        "type=vnd.android.cursor.item/contact",
+        "S.name=" + encodeURIComponent("Sumit Kukreja"),
+        "S.phone=" + encodeURIComponent("+18043014498"),
+        "S.email=" + encodeURIComponent("sumit@crestlinetax.com"),
+        "S.company=" + encodeURIComponent("Crestline Tax & Accounting"),
+        "S.job_title=" + encodeURIComponent("Tax Consultant"),
+        "S.postal=" + encodeURIComponent("5600 Roswell Rd Bldg C, Sandy Springs, GA 30342"),
+        "S.notes=" + encodeURIComponent("https://crestlinetax.com"),
+        "end",
+      ].join(";")
+    : "";
 
-    const file = new File([vcard], "Sumit-Kukreja.vcf", { type: "text/vcard" });
-    if (!navigator.canShare || !navigator.canShare({ files: [file] })) return;
+  if (isAndroid) saveContact.href = androidContactUrl;
 
+  saveContact.addEventListener("click", (event) => {
+    if (!isAndroid && !isIOS) return;
     event.preventDefault();
-    try {
-      await navigator.share({ files: [file], title: "Sumit Kukreja" });
-    } catch (error) {
-      if (error && error.name === "AbortError") return;
-      window.location.href = fileUrl;
-    }
+    window.location.href = isAndroid ? androidContactUrl : contactUrl;
   });
 }
