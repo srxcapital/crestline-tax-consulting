@@ -1815,6 +1815,7 @@
 
       .sc-services {
         grid-template-columns: 1fr 1fr;
+        align-items: center;
         gap: 16px 12px;
         margin-top: 26px;
         max-width: none;
@@ -1825,7 +1826,7 @@
       }
 
       .sc-services li {
-        align-items: flex-start;
+        align-items: center;
         gap: 8px;
         min-width: 0;
         font-size: 12.5px;
@@ -1840,7 +1841,7 @@
         width: 28px;
         height: 28px;
         color: #2fbe46;
-        margin-top: 1px;
+        margin-top: 0;
       }
 
       .sc-card {
