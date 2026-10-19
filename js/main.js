@@ -35,32 +35,89 @@ if (saveContact) {
   const ua = navigator.userAgent || "";
   const isAndroid = /Android/i.test(ua);
   const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isWindows = /Windows/i.test(ua);
+  const vcard = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    "N:Kukreja;Sumit;;;",
+    "FN:Sumit Kukreja",
+    "ORG:Crestline Tax & Accounting",
+    "TITLE:Tax Consultant",
+    "TEL:+18043014498",
+    "EMAIL:sumit@crestlinetax.com",
+    "URL:https://crestlinetax.com",
+    "ADR:;;5600 Roswell Rd Bldg C;Sandy Springs;GA;30342;USA",
+    "END:VCARD",
+    "",
+  ].join("\r\n");
 
   saveContact.removeAttribute("download");
   saveContact.removeAttribute("target");
 
-  // Android opens the system Add Contact screen. A .vcf link only saves a file.
-  const androidContactUrl = isAndroid
-    ? [
-        "intent:#Intent",
-        "action=android.intent.action.INSERT",
-        "type=vnd.android.cursor.item/contact",
-        "S.name=" + encodeURIComponent("Sumit Kukreja"),
-        "S.phone=" + encodeURIComponent("+18043014498"),
-        "S.email=" + encodeURIComponent("sumit@crestlinetax.com"),
-        "S.company=" + encodeURIComponent("Crestline Tax & Accounting"),
-        "S.job_title=" + encodeURIComponent("Tax Consultant"),
-        "S.postal=" + encodeURIComponent("5600 Roswell Rd Bldg C, Sandy Springs, GA 30342"),
-        "S.notes=" + encodeURIComponent("https://crestlinetax.com"),
-        "end",
-      ].join(";")
-    : "";
+  const androidContactUrl = [
+    "intent:#Intent",
+    "action=android.intent.action.INSERT",
+    "type=vnd.android.cursor.dir/contact",
+    "S.name=" + encodeURIComponent("Sumit Kukreja"),
+    "S.phone=" + encodeURIComponent("+18043014498"),
+    "S.email=" + encodeURIComponent("sumit@crestlinetax.com"),
+    "S.company=" + encodeURIComponent("Crestline Tax & Accounting"),
+    "S.job_title=" + encodeURIComponent("Tax Consultant"),
+    "S.postal=" + encodeURIComponent("5600 Roswell Rd Bldg C, Sandy Springs, GA 30342"),
+    "S.notes=" + encodeURIComponent("https://crestlinetax.com"),
+    "end",
+  ].join(";");
 
+  const isMobile = isAndroid || isIOS;
+  // A real tap has to open the contact. Cancelling it in script does nothing on a phone.
   if (isAndroid) saveContact.href = androidContactUrl;
+  else if (isIOS) saveContact.href = contactUrl;
 
-  saveContact.addEventListener("click", (event) => {
-    if (!isAndroid && !isIOS) return;
+  saveContact.addEventListener("click", async (event) => {
+    if (isMobile) return;
+
     event.preventDefault();
-    window.location.href = isAndroid ? androidContactUrl : contactUrl;
+
+    const file = new File([vcard], "Sumit Kukreja.vcf", { type: "text/vcard" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: "Sumit Kukreja" });
+        return;
+      } catch (error) {
+        if (error && error.name === "AbortError") return;
+      }
+    }
+
+    if (isWindows) {
+      const params = new URLSearchParams({
+        PhoneNumber: "+18043014498",
+        Email: "sumit@crestlinetax.com",
+        ContactName: "Sumit Kukreja",
+      });
+      window.location.href = "ms-people:savetocontact?" + params.toString();
+      return;
+    }
+
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: "Sumit Kukreja.vcf",
+          types: [{ description: "Contact card", accept: { "text/vcard": [".vcf"] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(vcard);
+        await writable.close();
+        return;
+      } catch (error) {
+        if (error && error.name === "AbortError") return;
+      }
+    }
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([vcard], { type: "text/vcard" }));
+    link.download = "Sumit Kukreja.vcf";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   });
 }
