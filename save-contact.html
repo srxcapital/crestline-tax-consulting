@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,16 +16,302 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="css/styles.css?v=14" />
+  <!-- Save-contact card: actions, contact rows and QR popup.
+       Sits on top of the existing .sc-card rules. Move into css/styles.css when ready. -->
+  <style>
+    .dc-card,
+    .dc-qr {
+      --dc-navy: #163456;
+      --dc-navy-deep: #0d2440;
+      --dc-navy-line: #1c3d66;
+      --dc-text: #1a3352;
+      --dc-muted: #5c6578;
+      --dc-green: #1aaa3c;
+      --dc-soft: #f4f8fb;
+      --dc-line: #e5eef4;
+    }
+ 
+    .sc-card.dc-card {
+      text-align: left;
+    }
+ 
+    /* Buttons */
+    .dc-actions {
+      display: grid;
+      gap: 10px;
+    }
+ 
+    .dc-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 50px;
+      padding: 0 14px;
+      border: 1.5px solid transparent;
+      border-radius: 12px;
+      font-family: "Poppins", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      line-height: 1.2;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, color 0.2s;
+    }
+ 
+    .dc-btn[hidden] {
+      display: none;
+    }
+ 
+    .dc-btn svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+ 
+    .dc-btn:focus-visible,
+    .dc-row:focus-visible,
+    .dc-qr-close:focus-visible {
+      outline: 3px solid var(--dc-green);
+      outline-offset: 2px;
+    }
+ 
+    .dc-btn--primary {
+      background: var(--dc-navy);
+      border-color: var(--dc-navy);
+      color: #ffffff;
+    }
+ 
+    .dc-btn--primary:hover {
+      background: var(--dc-navy-deep);
+      border-color: var(--dc-navy-deep);
+      transform: translateY(-1px);
+    }
+ 
+    .dc-btn--outline {
+      background: #ffffff;
+      border-color: var(--dc-navy-line);
+      color: var(--dc-navy);
+    }
+ 
+    .dc-btn--outline:hover {
+      background: var(--dc-soft);
+      transform: translateY(-1px);
+    }
+ 
+    .dc-btn.dc-btn--quiet {
+      min-height: 44px;
+      background: var(--dc-soft);
+      color: var(--dc-navy);
+      font-size: 12px;
+    }
+ 
+    .dc-btn.dc-btn--quiet:hover {
+      background: var(--dc-line);
+    }
+ 
+    .dc-btn.dc-btn--quiet svg {
+      width: 18px;
+      height: 18px;
+    }
+ 
+    /* Contact rows: the whole row is the tap target */
+    .dc-details {
+      display: flex;
+      flex-direction: column;
+      margin: 14px 0;
+      border-top: 1px solid var(--dc-line);
+    }
+ 
+    .dc-details li {
+      border-bottom: 1px solid var(--dc-line);
+    }
+ 
+    .dc-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 54px;
+      padding: 8px 4px;
+      border-radius: 10px;
+      color: var(--dc-text);
+      font-family: "DM Sans", sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+      transition: background 0.2s;
+    }
+ 
+    .dc-row:hover {
+      background: var(--dc-soft);
+    }
+ 
+    .dc-bubble {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--dc-green);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+ 
+    .dc-bubble svg {
+      width: 17px;
+      height: 17px;
+    }
+ 
+    .dc-more {
+      display: flex;
+      gap: 10px;
+    }
+ 
+    .dc-more > * {
+      flex: 1 1 0;
+      width: auto;
+    }
+ 
+    @media (max-width: 768px) {
+      .dc-btn {
+        font-size: 13px;
+        letter-spacing: 0.04em;
+      }
+ 
+      .dc-row {
+        font-size: 14.5px;
+      }
+    }
+ 
+    /* QR popup. margin:auto is required here: the global * reset removes the dialog's default centering. */
+    .dc-qr {
+      margin: auto;
+      width: min(calc(100vw - 32px), 360px);
+      max-height: calc(100vh - 32px);
+      padding: 0;
+      border: 0;
+      border-radius: 26px;
+      background: #ffffff;
+      color: var(--dc-text);
+      box-shadow: 0 30px 80px rgba(2, 27, 52, 0.45);
+      overflow: auto;
+    }
+ 
+    .dc-qr::backdrop {
+      background: rgba(2, 27, 52, 0.72);
+    }
+ 
+    .dc-qr-body {
+      position: relative;
+      padding: 28px 22px 22px;
+      text-align: center;
+    }
+ 
+    .dc-qr h2 {
+      margin: 0 36px 18px;
+      font-family: "Poppins", sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      line-height: 1.4;
+      text-transform: uppercase;
+      color: var(--dc-text);
+    }
+ 
+    .dc-qr-frame {
+      border: 1px solid var(--dc-line);
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 10px 24px rgba(18, 42, 68, 0.06);
+    }
+ 
+    .dc-qr-frame img {
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+ 
+    .dc-qr-scan {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
+      color: var(--dc-muted);
+      font-size: 13.5px;
+      line-height: 1.25;
+      text-align: left;
+    }
+ 
+    .dc-qr-scan svg {
+      width: 22px;
+      height: 22px;
+      color: #14943a;
+      flex-shrink: 0;
+    }
+ 
+    .dc-qr-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--dc-soft);
+      color: var(--dc-navy);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+ 
+    .dc-qr-close:hover {
+      background: var(--dc-line);
+    }
+ 
+    .dc-qr-close svg {
+      width: 18px;
+      height: 18px;
+    }
+ 
+    @media (prefers-reduced-motion: no-preference) {
+      .dc-qr[open] {
+        animation: dc-pop 0.18s ease-out;
+      }
+ 
+      .dc-qr[open]::backdrop {
+        animation: dc-fade 0.18s ease-out;
+      }
+    }
+ 
+    @keyframes dc-pop {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+      }
+    }
+ 
+    @keyframes dc-fade {
+      from {
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-
+ 
   <!-- HEADER -->
   <header class="topbar">
     <div class="container navbar">
       <a class="brand" href="index.html">
         <img src="assets/images/crestline-logo-full.png" alt="Crestline Tax & Accounting — Strategy • Savings • Results" />
       </a>
-
+ 
       <nav class="nav-links" id="navLinks">
         <a href="index.html">Home</a>
         <a href="index.html#about">About Us</a>
@@ -65,7 +352,7 @@
           </div>
         </div>
       </nav>
-
+ 
       <div class="nav-actions">
         <a class="phone-link" href="tel:8043014498">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -88,7 +375,7 @@
       </div>
     </div>
   </header>
-
+ 
   <main class="save-contact">
     <section class="sc-stage">
       <div class="sc-brandbar">
@@ -120,7 +407,7 @@
           </g>
         </svg>
       </div>
-
+ 
       <div class="sc-inner">
         <div class="sc-left">
         <div class="sc-copy">
@@ -129,7 +416,7 @@
             <span class="sc-kicker-line" aria-hidden="true"></span>
           </div>
           <h1>Sumit Kukreja</h1>
-
+ 
           <ul class="sc-services">
             <li>
               <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
@@ -212,74 +499,142 @@
           <span>Results</span>
         </p>
         </div>
-
-        <aside class="sc-card">
-          <div class="sc-card-top">
-            <ul class="sc-details">
-              <li>
-                <span class="sc-bubble" aria-hidden="true">
+ 
+ 
+        <aside class="sc-card dc-card" aria-label="Contact Sumit Kukreja">
+          <div class="dc-actions">
+            <a class="dc-btn dc-btn--primary" href="assets/sumit-kukreja.vcf">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="9.5" cy="8" r="3.6" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M2.8 20c.6-3.7 3.2-5.8 6.7-5.8 1.6 0 3 .4 4.1 1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M18.5 13.5v7M15 17h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              <span>Save Contact</span>
+            </a>
+            <a class="dc-btn dc-btn--outline" href="https://cal.com/crestlinetax/crestline-tax-accounting" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="15.5" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M3.5 9.5h17M8 3.2v3.6M16 3.2v3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              <span>Book an Appointment</span>
+            </a>
+          </div>
+ 
+          <ul class="dc-details">
+            <li>
+              <a class="dc-row" href="tel:8043014498">
+                <span class="dc-bubble" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
-                <a class="fit-line" href="tel:8043014498">(804) 301-4498</a>
-              </li>
-              <li>
-                <span class="sc-bubble" aria-hidden="true">
+                <span>(804) 301-4498</span>
+              </a>
+            </li>
+            <li>
+              <a class="dc-row" href="mailto:sumit@crestlinetax.com">
+                <span class="dc-bubble" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
                     <path d="M3 7l9 7 9-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
-                <a class="fit-line" href="mailto:sumit@crestlinetax.com">sumit@<wbr>crestlinetax.com</a>
-              </li>
-              <li>
-                <span class="sc-bubble" aria-hidden="true">
+                <span>sumit@<wbr>crestlinetax.com</span>
+              </a>
+            </li>
+            <li>
+              <a class="dc-row" href="https://crestlinetax.com" target="_blank" rel="noopener noreferrer">
+                <span class="dc-bubble" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.8"/>
                     <path d="M3.8 12h16.4M12 3.8c2.2 2.4 3.3 5.2 3.3 8.2s-1.1 5.8-3.3 8.2c-2.2-2.4-3.3-5.2-3.3-8.2s1.1-5.8 3.3-8.2z" stroke="currentColor" stroke-width="1.8"/>
                   </svg>
                 </span>
-                <a class="fit-line" href="https://crestlinetax.com" target="_blank" rel="noopener noreferrer">www.<wbr>crestlinetax.com</a>
-              </li>
-              <li>
-                <span class="sc-bubble" aria-hidden="true">
+                <span>www.<wbr>crestlinetax.com</span>
+              </a>
+            </li>
+            <li>
+              <a class="dc-row" href="https://www.google.com/maps/search/?api=1&amp;query=5600+Roswell+Rd+Bldg+C%2C+Sandy+Springs%2C+GA+30342" target="_blank" rel="noopener noreferrer">
+                <span class="dc-bubble" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M12 21s-7-6.2-7-11a7 7 0 1114 0c0 4.8-7 11-7 11z" stroke="currentColor" stroke-width="1.8"/>
                     <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.8"/>
                   </svg>
                 </span>
-                <span class="fit-line">5600 Roswell Rd Bldg&nbsp;C,<br /> Sandy Springs, GA&nbsp;30342</span>
-              </li>
-            </ul>
-            <div class="sc-card-qr">
-              <h2>Save My Contact</h2>
-              <div class="sc-qr">
-                <img src="assets/images/sumit-contact-qr.png" alt="QR code to save Sumit Kukreja's contact" width="280" height="280" />
-              </div>
-              <p class="sc-scan">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span class="fit-line">Scan the QR Code<br /> to save my contact</span>
-              </p>
-            </div>
+                <span>5600 Roswell Rd Bldg&nbsp;C,<br /> Sandy Springs, GA&nbsp;30342</span>
+              </a>
+            </li>
+          </ul>
+ 
+          <div class="dc-more">
+            <button class="dc-btn dc-btn--quiet" type="button" data-qr-open aria-haspopup="dialog">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.2" stroke="currentColor" stroke-width="1.8"/>
+                <rect x="14" y="3.5" width="6.5" height="6.5" rx="1.2" stroke="currentColor" stroke-width="1.8"/>
+                <rect x="3.5" y="14" width="6.5" height="6.5" rx="1.2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M14 14h2.6v2.6H14zM17.9 17.9h2.6v2.6h-2.6zM14 20.5h.1M20.5 14h.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>QR Code</span>
+            </button>
+            <button class="dc-btn dc-btn--quiet" type="button" id="shareCard" hidden>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 15V3.5M7.8 7.4L12 3.2l4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6.5 11.5H5v9h14v-9h-1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Share</span>
+            </button>
           </div>
-          <a class="sc-book" href="https://cal.com/crestlinetax/crestline-tax-accounting" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3.5" y="5" width="17" height="15.5" rx="2" stroke="currentColor" stroke-width="1.8"/>
-              <path d="M3.5 9.5h17M8 3.2v3.6M16 3.2v3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            <span>Book an Appointment</span>
-            <svg class="sc-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
         </aside>
       </div>
-
+ 
     </section>
+ 
+    <!-- QR popup -->
+    <dialog class="dc-qr" id="qrDialog" aria-labelledby="qrTitle">
+      <div class="dc-qr-body">
+        <button class="dc-qr-close" type="button" data-qr-close aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <h2 id="qrTitle">Save My Contact</h2>
+        <div class="dc-qr-frame">
+          <img src="assets/images/sumit-contact-qr.png" alt="QR code to save Sumit Kukreja's contact" width="280" height="280" />
+        </div>
+        <p class="dc-qr-scan">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Scan the QR Code<br /> to save my contact</span>
+        </p>
+      </div>
+    </dialog>
   </main>
   <script src="js/main.js?v=14"></script>
+  <script>
+    (function () {
+      // QR popup
+      var dialog = document.getElementById('qrDialog');
+      if (dialog && dialog.showModal) {
+        document.querySelectorAll('[data-qr-open]').forEach(function (btn) {
+          btn.addEventListener('click', function () { dialog.showModal(); });
+        });
+        dialog.addEventListener('click', function (e) {
+          // Close on the X button or a click on the backdrop
+          if (e.target === dialog || e.target.closest('[data-qr-close]')) dialog.close();
+        });
+      }
+ 
+      // Native share sheet, only where the browser supports it
+      var share = document.getElementById('shareCard');
+      if (share && navigator.share) {
+        share.hidden = false;
+        share.addEventListener('click', function () {
+          navigator.share({ title: document.title, url: location.href }).catch(function () {});
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
+ 
